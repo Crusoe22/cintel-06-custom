@@ -9,6 +9,8 @@ from shiny import App, Inputs, Outputs, Session, reactive, render, ui
 from shinywidgets import output_widget, render_plotly
 from stocks import stocks
 
+from seaborn import dowjones
+
 # Default to the last 6 months
 end = pd.Timestamp.now()
 start = end - pd.Timedelta(weeks=26)

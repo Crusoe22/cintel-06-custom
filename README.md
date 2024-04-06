@@ -1,5 +1,12 @@
 # cintel-06-custom
 
+## Overview
+add summary
+
+
+
+
+
 ## Create Project Virtual Environment
 
 ```shell
@@ -9,6 +16,19 @@ py -m venv .venv
 py -m pip install -r requirements.txt
 
 ```
+3. Requirements
+- Install packages 
+```console
+py -m pip install jupyterlab pandas matplotlib 
+```
+- Freeze your requirements to requirements.txt. 
+```console
+py -m pip install requests
+py -m pip freeze > requirements.txt
+```
+
+
+
 
 ## Git add and commit 
 
