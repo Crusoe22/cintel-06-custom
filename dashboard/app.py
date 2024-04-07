@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import cufflinks as cf
 import pandas as pd
 import yfinance as yf
@@ -8,8 +6,10 @@ from shiny import reactive
 from shiny.express import input, render, ui
 from shiny.ui import output_ui
 from shinywidgets import render_plotly
-#from shiny.express.render import DataGrid  # Import DataGrid
+import plotly.express as px
 
+import seaborn as sns
+from pathlib import Path
 from stocks import stocks
 
 # Default to the last 6 months
@@ -21,6 +21,7 @@ ui.page_opts(title="Stock explorer", fillable=True)
 with ui.sidebar():
     ui.input_selectize("ticker", "Select Stocks", choices=stocks, selected="AAPL")
     ui.input_date_range("dates", "Select dates", start=start, end=end)
+    ui.input_slider("n", "Number of bins", 0, 100, 20)
 
 # Define a function to get data as a pandas DataFrame
 def get_dataframe():
@@ -73,11 +74,8 @@ with ui.layout_column_wrap(fill=False):
         def change_percent():
             return f"{get_change_percent():.2f}%"
 
-
-
-with ui.layout_columns(col_widths=[9, 3]):
-    with ui.card(full_screen=True):
-        ui.card_header("Price history")
+    with ui.card():
+        ui.card_header("Price History")
 
         @render_plotly
         def price_history():
@@ -98,7 +96,6 @@ with ui.layout_columns(col_widths=[9, 3]):
             )
             return fig
 
-        # Add DataGrid to display the stock data
     with ui.card():
         ui.card_header("Stock Data")
 
@@ -108,9 +105,21 @@ with ui.layout_columns(col_widths=[9, 3]):
             if data is not None:
                 return render.DataGrid(data)  # Render the DataGrid with the stock data
 
+    with ui.card():
+        ui.card_header("Price Distribution")
+
+        @render_plotly
+        def price_distribution():
+            return px.histogram(
+                get_data(),
+                x="Close",
+                nbins= input.n(),
+                title="Price Distribution",
+                labels={"Close": "Price"},
+            )
+
 
 ui.include_css(Path(__file__).parent / "styles.css")
-
 
 @reactive.calc
 def get_ticker():
