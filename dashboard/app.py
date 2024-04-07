@@ -8,7 +8,6 @@ from shiny.ui import output_ui
 from shinywidgets import render_plotly
 import plotly.express as px
 
-import seaborn as sns
 from pathlib import Path
 from stocks import stocks
 
@@ -22,6 +21,21 @@ with ui.sidebar():
     ui.input_selectize("ticker", "Select Stocks", choices=stocks, selected="AAPL")
     ui.input_date_range("dates", "Select dates", start=start, end=end)
     ui.input_slider("n", "Number of bins", 0, 100, 20)
+
+    ui.h6("Github Links:")
+    ui.a(
+        "GitHub Source",
+        href="https://github.com/Crusoe22/cintel-06-custom",
+        target="_blank",
+        style="color: #007bff;",
+    )
+    
+    ui.a(
+        "GitHub App",
+        href="https://github.com/Crusoe22/cintel-06-custom/blob/main/dashboard/app.py",
+        target="_blank",
+        style="color: #007bff;",
+    )
 
 # Define a function to get data as a pandas DataFrame
 def get_dataframe():
@@ -51,7 +65,7 @@ def get_change_percent():
 def get_data():
     return get_dataframe()
 
-with ui.layout_column_wrap(fill=False):
+with ui.layout_column_wrap(fill=False, height=75):
     with ui.value_box(showcase=icon_svg("dollar-sign")):
         "Current Price"
 
@@ -74,7 +88,8 @@ with ui.layout_column_wrap(fill=False):
         def change_percent():
             return f"{get_change_percent():.2f}%"
 
-    with ui.card():
+with ui.layout_columns(row_heights=None, col_widths=None):
+    with ui.card(full_screen=True):
         ui.card_header("Price History")
 
         @render_plotly
@@ -96,14 +111,6 @@ with ui.layout_column_wrap(fill=False):
             )
             return fig
 
-    with ui.card():
-        ui.card_header("Stock Data")
-
-        @render.data_frame
-        def stock_data():
-            data = get_data()  # Get the stock data
-            if data is not None:
-                return render.DataGrid(data)  # Render the DataGrid with the stock data
 
     with ui.card():
         ui.card_header("Price Distribution")
@@ -118,6 +125,16 @@ with ui.layout_column_wrap(fill=False):
                 labels={"Close": "Price"},
             )
 
+
+with ui.layout_columns(height=300, col_widths=12):
+    with ui.card():
+        ui.card_header("Stock Data")
+
+        @render.data_frame
+        def stock_data():
+            data = get_data()  # Get the stock data
+            if data is not None:
+                return render.DataGrid(data)  # Render the DataGrid with the stock data
 
 ui.include_css(Path(__file__).parent / "styles.css")
 
