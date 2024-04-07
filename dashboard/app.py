@@ -69,16 +69,6 @@ with ui.layout_columns(col_widths=[9, 3]):
             )
             return fig
 
-    with ui.card():
-        ui.card_header("Latest data")
-
-        @render.data_frame
-        def latest_data():
-            x = get_data()[:1].T.reset_index()
-            x.columns = ["Category", "Value"]
-            x["Value"] = x["Value"].apply(lambda v: f"{v:.1f}")
-            return x
-
 
 ui.include_css(Path(__file__).parent / "styles.css")
 

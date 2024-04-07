@@ -80,3 +80,11 @@ git add .
 git commit -m "Useful commit message"
 git push -u origin main
 ```
+
+Add new stuff for app:
+use dowjones data from csv file 
+add new chart from plotly: https://shiny.posit.co/py/components/outputs/plot-plotly/ 
+
+add data grid: https://shiny.posit.co/py/api/express/express.render.DataGrid.html
+
+delete out old chart\ keep other inputs
