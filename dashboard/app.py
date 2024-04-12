@@ -48,7 +48,7 @@ def get_data():
 
 with ui.layout_column_wrap(fill=False, height=75):
     with ui.value_box(showcase=icon_svg("dollar-sign")):
-        "Summary of Bills Selected"
+        "Sum of Bills Selected"
 
         @render.ui
         def total_bill():
