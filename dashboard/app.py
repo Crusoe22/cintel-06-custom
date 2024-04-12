@@ -1,4 +1,3 @@
-import cufflinks as cf
 import pandas as pd
 import yfinance as yf
 from faicons import icon_svg
@@ -94,16 +93,12 @@ with ui.layout_columns(row_heights=None, col_widths=None):
 
         @render_plotly
         def price_history():
-            qf = cf.QuantFig(
+            fig = px.line(
                 get_data(),
-                name=input.ticker(),
-                up_color="#44bb70",
-                down_color="#040548",
-                legend="top",
+                x=get_data().index,
+                y="Close",
+                title="Price History",
             )
-            qf.add_sma()
-            qf.add_volume(up_color="#44bb70", down_color="#040548")
-            fig = qf.figure()
             fig.update_layout(
                 hovermode="x unified",
                 paper_bgcolor="rgba(0,0,0,0)",
@@ -120,7 +115,7 @@ with ui.layout_columns(row_heights=None, col_widths=None):
             return px.histogram(
                 get_data(),
                 x="Close",
-                nbins= input.n(),
+                nbins=input.n(),
                 title="Price Distribution",
                 labels={"Close": "Price"},
             )
