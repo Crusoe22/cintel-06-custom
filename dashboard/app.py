@@ -43,15 +43,6 @@ def get_dataframe():
     selected_day = input.day()
     return tips[(tips["sex"] == selected_sex) & (tips["day"] == selected_day)]
 
-# Define a function to calculate the change
-@reactive.calc
-def get_change():
-    return 0  # Placeholder since we don't have actual stock data
-
-# Define a function to calculate the percent change
-@reactive.calc
-def get_change_percent():
-    return 0  # Placeholder since we don't have actual stock data
 
 # Define a function to get the stock data
 @reactive.calc
@@ -60,25 +51,16 @@ def get_data():
 
 with ui.layout_column_wrap(fill=False, height=75):
     with ui.value_box(showcase=icon_svg("dollar-sign")):
-        "Total Bill"
+        "Summary of Bills Selected"
 
         @render.ui
         def total_bill():
-            return f"{tips['total_bill'].iloc[-1]:.2f}"
+            selected_day = input.day()  # Get the selected day
+            selected_sex = input.sex()  # Get the selected sex
+            selected_data = tips[(tips["day"] == selected_day) & (tips["sex"] == selected_sex)]  # Filter data by selected day and sex
+            sum_of_bills = selected_data["total_bill"].sum()  # Calculate sum of bills
+            return f"{sum_of_bills:.2f}"
 
-    with ui.value_box(showcase=output_ui("change_icon")):
-        "Change"
-
-        @render.ui
-        def change():
-            return f"${get_change():.2f}"
-
-    with ui.value_box(showcase=icon_svg("percent")):
-        "Percent Change"
-
-        @render.ui
-        def change_percent():
-            return f"{get_change_percent():.2f}%"
 
 with ui.layout_columns(row_heights=None, col_widths=None):
     with ui.card(full_screen=True):
@@ -131,13 +113,6 @@ ui.include_css(Path(__file__).parent / "styles.css")
 def get_data():
     return get_dataframe()
 
-@reactive.calc
-def get_change():
-    return 0  # Placeholder since we don't have actual stock data
-
-@reactive.calc
-def get_change_percent():
-    return 0  # Placeholder since we don't have actual stock data
 
 with ui.hold():
 
