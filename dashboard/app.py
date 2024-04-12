@@ -11,10 +11,7 @@ import seaborn as sns
 # Load the Seaborn tips dataset
 tips = sns.load_dataset("tips")
 
-# Default to the last 6 months
-end = pd.Timestamp.now()
-start = end - pd.Timedelta(weeks=26)
-
+# Title
 ui.page_opts(title="Tip Determination Explorer", fillable=True)
 
 with ui.sidebar():
@@ -37,14 +34,14 @@ with ui.sidebar():
         style="color: #007bff;",
     )
 
-# Define a function to get data as a pandas DataFrame
+# Define a function to get data 
 def get_dataframe():
     selected_sex = input.sex()
     selected_day = input.day()
     return tips[(tips["sex"] == selected_sex) & (tips["day"] == selected_day)]
 
 
-# Define a function to get the stock data
+# Define a function to get the tip data
 @reactive.calc
 def get_data():
     return get_dataframe()
