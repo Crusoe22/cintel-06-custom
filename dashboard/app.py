@@ -1,14 +1,13 @@
 import pandas as pd
-import yfinance as yf
 from faicons import icon_svg
 from shiny import reactive
 from shiny.express import input, render, ui
 from shiny.ui import output_ui
 from shinywidgets import render_plotly
 import plotly.express as px
-
 from pathlib import Path
 from stocks import stocks
+import yfinance as yf
 
 # Default to the last 6 months
 end = pd.Timestamp.now()
