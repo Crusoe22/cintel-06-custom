@@ -6,18 +6,20 @@ from shiny.ui import output_ui
 from shinywidgets import render_plotly
 import plotly.express as px
 from pathlib import Path
-from stocks import stocks
-import yfinance as yf
+import seaborn as sns
+
+# Load the Seaborn tips dataset
+tips = sns.load_dataset("tips")
 
 # Default to the last 6 months
 end = pd.Timestamp.now()
 start = end - pd.Timedelta(weeks=26)
 
-ui.page_opts(title="Stock explorer", fillable=True)
+ui.page_opts(title="Tip Determination Explorer", fillable=True)
 
 with ui.sidebar():
-    ui.input_selectize("ticker", "Select Stocks", choices=stocks, selected="AAPL")
-    ui.input_date_range("dates", "Select dates", start=start, end=end)
+    ui.input_selectize("sex", "Select Sex", choices=list(tips["sex"].unique()), selected="Male")
+    ui.input_selectize("day", "Select Day", choices=list(tips["day"].unique()), selected="Sun")
     ui.input_slider("n", "Number of bins", 0, 100, 20)
 
     ui.h6("Github Links:")
@@ -37,26 +39,19 @@ with ui.sidebar():
 
 # Define a function to get data as a pandas DataFrame
 def get_dataframe():
-    dates = input.dates()
-    return get_ticker().history(start=dates[0], end=dates[1])
-
-# Define a function to get a specific ticker
-@reactive.calc
-def get_ticker():
-    return yf.Ticker(input.ticker())
+    selected_sex = input.sex()
+    selected_day = input.day()
+    return tips[(tips["sex"] == selected_sex) & (tips["day"] == selected_day)]
 
 # Define a function to calculate the change
 @reactive.calc
 def get_change():
-    close = get_dataframe()["Close"]
-    return close.iloc[-1] - close.iloc[-2]
+    return 0  # Placeholder since we don't have actual stock data
 
 # Define a function to calculate the percent change
 @reactive.calc
 def get_change_percent():
-    close = get_dataframe()["Close"]
-    change = close.iloc[-1] - close.iloc[-2]
-    return change / close.iloc[-2] * 100
+    return 0  # Placeholder since we don't have actual stock data
 
 # Define a function to get the stock data
 @reactive.calc
@@ -65,12 +60,11 @@ def get_data():
 
 with ui.layout_column_wrap(fill=False, height=75):
     with ui.value_box(showcase=icon_svg("dollar-sign")):
-        "Current Price"
+        "Total Bill"
 
         @render.ui
-        def price():
-            close = get_dataframe()["Close"]
-            return f"{close.iloc[-1]:.2f}"
+        def total_bill():
+            return f"{tips['total_bill'].iloc[-1]:.2f}"
 
     with ui.value_box(showcase=output_ui("change_icon")):
         "Change"
@@ -88,18 +82,19 @@ with ui.layout_column_wrap(fill=False, height=75):
 
 with ui.layout_columns(row_heights=None, col_widths=None):
     with ui.card(full_screen=True):
-        ui.card_header("Price History")
+        ui.card_header("Total Bill vs. Tip")
 
         @render_plotly
-        def price_history():
-            fig = px.line(
+        def total_bill_vs_tip():
+            fig = px.scatter(
                 get_data(),
-                x=get_data().index,
-                y="Close",
-                title="Price History",
+                x="total_bill",
+                y="tip",
+                color="sex",
+                title="Total Bill vs. Tip",
             )
             fig.update_layout(
-                hovermode="x unified",
+                hovermode="closest",
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
             )
@@ -107,60 +102,47 @@ with ui.layout_columns(row_heights=None, col_widths=None):
 
 
     with ui.card():
-        ui.card_header("Price Distribution")
+        ui.card_header("Tip Distribution")
 
         @render_plotly
-        def price_distribution():
+        def tip_distribution():
             return px.histogram(
                 get_data(),
-                x="Close",
+                x="tip",
                 nbins=input.n(),
-                title="Price Distribution",
-                labels={"Close": "Price"},
+                title="Tip Distribution",
+                labels={"tip": "Tip Amount"},
             )
 
 
 with ui.layout_columns(height=300, col_widths=12):
     with ui.card():
-        ui.card_header("Stock Data")
+        ui.card_header("Tips Data")
 
         @render.data_frame
-        def stock_data():
-            data = get_data()  # Get the stock data
+        def tips_data():
+            data = get_data()  # Get the tips data
             if data is not None:
-                return render.DataGrid(data)  # Render the DataGrid with the stock data
+                return render.DataGrid(data)  # Render the DataGrid with the tips data
 
 ui.include_css(Path(__file__).parent / "styles.css")
 
 @reactive.calc
-def get_ticker():
-    return yf.Ticker(input.ticker())
-
-
-@reactive.calc
 def get_data():
-    dates = input.dates()
-    return get_ticker().history(start=dates[0], end=dates[1])
-
+    return get_dataframe()
 
 @reactive.calc
 def get_change():
-    close = get_data()["Close"]
-    return close.iloc[-1] - close.iloc[-2]
-
+    return 0  # Placeholder since we don't have actual stock data
 
 @reactive.calc
 def get_change_percent():
-    close = get_data()["Close"]
-    change = close.iloc[-1] - close.iloc[-2]
-    return change / close.iloc[-2] * 100
-
+    return 0  # Placeholder since we don't have actual stock data
 
 with ui.hold():
 
     @render.ui
     def change_icon():
-        change = get_change()
-        icon = icon_svg("arrow-up" if change >= 0 else "arrow-down")
-        icon.add_class(f"text-{('success' if change >= 0 else 'danger')}")
+        icon = icon_svg("arrow-up")
+        icon.add_class("text-success")
         return icon
